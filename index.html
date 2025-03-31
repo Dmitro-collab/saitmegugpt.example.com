@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чат із ШІ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        #chatBox {
+            width: 500px;
+            height: 400px;
+            border: 1px solid #ccc;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #fff;
+            overflow-y: auto;
+        }
+        textarea {
+            width: 500px;
+            height: 70px;
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .user, .bot {
+            text-align: left;
+            margin: 5px 0;
+        }
+        .user {
+            color: blue;
+        }
+        .bot {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>Чат із ШІ</h1>
+    <div id="chatBox"></div>
+    <textarea id="userInput" placeholder="Введіть повідомлення..."></textarea><br>
+    <button onclick="sendMessage()">Відправити</button>
+
+    <script>
+        async function sendMessage() {
+            const input = document.getElementById("userInput").value.trim();
+            const chatBox = document.getElementById("chatBox");
+
+            if (!input) {
+                alert("Введіть повідомлення!");
+                return;
+            }
+
+            // Додати повідомлення користувача до чату
+            chatBox.innerHTML += `<div class="user"><b>Ви:</b> ${input}</div>`;
+
+            // Відправити запит на сервер
+            try {
+                const response = await fetch("/api/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: input })
+                });
+                const data = await response.json();
+
+                if (data.response) {
+                    chatBox.innerHTML += `<div class="bot"><b>ШІ:</b> ${data.response}</div>`;
+                } else {
+                    chatBox.innerHTML += `<div class="bot"><b>ШІ:</b> Помилка у відповіді.</div>`;
+                }
+            } catch (error) {
+                chatBox.innerHTML += `<div class="bot"><b>ШІ:</b> Проблема з сервером!</div>`;
+            }
+
+            // Очистити поле вводу та прокрутити чат вниз
+            document.getElementById("userInput").value = "";
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
